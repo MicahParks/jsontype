@@ -11,10 +11,10 @@ import "github.com/MicahParks/jsontype"
 # Supported Types
 1. [`*mail.Address`](https://pkg.go.dev/net/mail#Address)
 2. [`*regexp.Regexp`](https://pkg.go.dev/regexp#Regexp)
-3. [`*time.Time`](https://pkg.go.dev/time#Time)
-4. [`*time.Duration`](https://pkg.go.dev/time#Duration)
+3. [`time.Time`](https://pkg.go.dev/time#Time)
+4. [`time.Duration`](https://pkg.go.dev/time#Duration)
 5. [`*url.URL`](https://pkg.go.dev/net/url#URL)
-6. [`*uuid.UUID`](https://pkg.go.dev/github.com/google/uuid#UUID)
+6. [`uuid.UUID`](https://pkg.go.dev/github.com/google/uuid#UUID)
 
 # Planned support
 1. [`*big.Float`](https://pkg.go.dev/math/big#Float)
