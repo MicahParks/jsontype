@@ -15,7 +15,7 @@ import (
 )
 
 const exampleConfig = `{
-  "ends": "Wed, 04 Oct 2022 00:00:00 -0500",
+  "ends": "Wed, 04 Oct 2022 00:00:00 MST",
   "getInterval": "1h30m",
   "notificationMsg": "Your item is on sale!",
   "notify": "EXAMPLE@example.com",
@@ -32,10 +32,6 @@ type myConfig struct {
 	TargetPage      *jsontype.JSONType[*url.URL]       `json:"targetPage"`
 	TargetRegExp    *jsontype.JSONType[*regexp.Regexp] `json:"targetRegExp"`
 	TargetUUID      *jsontype.JSONType[uuid.UUID]      `json:"targetUUID"`
-}
-
-type myConfig struct {
-	TargetPage *jsontype.JSONType[*url.URL] `json:"targetPage"`
 }
 
 func main() {
