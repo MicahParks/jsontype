@@ -25,7 +25,7 @@ import "github.com/MicahParks/jsontype"
 6. [`netip.Prefix`](https://pkg.go.dev/net/netip#Prefix)
 
 # Usage
-* All method are safe for concurrent use by multiple goroutines.
+* All methods are safe for concurrent use by multiple goroutines.
 
 ## Define a data structure using one or more *jsontype.JSONType generic field.
 ```go
