@@ -56,6 +56,10 @@ func NewWithOptions[T J](v T, options Options) *JSONType[T] {
 
 // Get returns the held value.
 func (j *JSONType[T]) Get() T {
+	if j == nil {
+		var t T
+		return t
+	}
 	j.mux.RLock()
 	defer j.mux.RUnlock()
 	return j.v
