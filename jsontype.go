@@ -16,6 +16,9 @@ import (
 const (
 	// errStringUnmarshal is an error message for when an expected JSON string could not be unmarshalled.
 	errStringUnmarshal = "failed to unmarshal as a string"
+
+	// errUnmarshalPackage is prepended to all unmarshal errors to make troubleshooting easier.
+	errUnmarshalPackage = "github.com/MicahParks/jsontype JSON unmarshal error"
 )
 
 // Options is a set of options for a JSONType. It modifies the behavior of JSON marshal/unmarshal.
@@ -126,40 +129,40 @@ func (j *JSONType[T]) UnmarshalJSON(bytes []byte) error {
 		var s string
 		err := json.Unmarshal(bytes, &s)
 		if err != nil {
-			return fmt.Errorf("%s: %w", errStringUnmarshal, err)
+			return fmt.Errorf("%s: %s: %w", errUnmarshalPackage, errStringUnmarshal, err)
 		}
 		addr, err := mail.ParseAddress(s)
 		if err != nil {
-			return fmt.Errorf("failed to parse email address: %w", err)
+			return fmt.Errorf("%s: failed to parse email address: %w", errUnmarshalPackage, err)
 		}
 		j.Set(any(addr).(T))
 	case *regexp.Regexp:
 		var s string
 		err := json.Unmarshal(bytes, &s)
 		if err != nil {
-			return fmt.Errorf("%s: %w", errStringUnmarshal, err)
+			return fmt.Errorf("%s: %s: %w", errStringUnmarshal, errUnmarshalPackage, err)
 		}
 		re, err := regexp.Compile(s)
 		if err != nil {
-			return fmt.Errorf("failed to compile regexp: %w", err)
+			return fmt.Errorf("%s: failed to compile regexp: %w", errUnmarshalPackage, err)
 		}
 		j.Set(any(re).(T))
 	case time.Duration:
 		var s string
 		err := json.Unmarshal(bytes, &s)
 		if err != nil {
-			return fmt.Errorf("%s: %w", errStringUnmarshal, err)
+			return fmt.Errorf("%s: %s: %w", errUnmarshalPackage, errStringUnmarshal, err)
 		}
 		d, err := time.ParseDuration(s)
 		if err != nil {
-			return fmt.Errorf("failed to parse duration: %w", err)
+			return fmt.Errorf("%s: failed to parse duration: %w", errUnmarshalPackage, err)
 		}
 		j.Set(any(d).(T))
 	case time.Time:
 		var s string
 		err := json.Unmarshal(bytes, &s)
 		if err != nil {
-			return fmt.Errorf("%s: %w", errStringUnmarshal, err)
+			return fmt.Errorf("%s: %s: %w", errUnmarshalPackage, errStringUnmarshal, err)
 		}
 		format := time.RFC3339
 		if j.options.TimeFormatUnmarshal != "" {
@@ -167,29 +170,29 @@ func (j *JSONType[T]) UnmarshalJSON(bytes []byte) error {
 		}
 		t, err := time.Parse(format, s)
 		if err != nil {
-			return fmt.Errorf("failed to parse time: %w", err)
+			return fmt.Errorf("%s: failed to parse time: %w", errUnmarshalPackage, err)
 		}
 		j.Set(any(t).(T))
 	case *url.URL:
 		var s string
 		err := json.Unmarshal(bytes, &s)
 		if err != nil {
-			return fmt.Errorf("%s: %w", errStringUnmarshal, err)
+			return fmt.Errorf("%s: %s: %w", errUnmarshalPackage, errStringUnmarshal, err)
 		}
 		u, err := url.Parse(s)
 		if err != nil {
-			return fmt.Errorf("failed to parse url: %w", err)
+			return fmt.Errorf("%s: failed to parse url: %w", errUnmarshalPackage, err)
 		}
 		j.Set(any(u).(T))
 	case uuid.UUID:
 		var s string
 		err := json.Unmarshal(bytes, &s)
 		if err != nil {
-			return fmt.Errorf("%s: %w", errStringUnmarshal, err)
+			return fmt.Errorf("%s: %s: %w", errUnmarshalPackage, errStringUnmarshal, err)
 		}
 		u, err := uuid.Parse(s)
 		if err != nil {
-			return fmt.Errorf("failed to parse uuid: %w", err)
+			return fmt.Errorf("%s: failed to parse uuid: %w", errUnmarshalPackage, err)
 		}
 		j.Set(any(u).(T))
 	}
