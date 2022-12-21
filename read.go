@@ -17,10 +17,10 @@ const (
 
 // Config is any data structure that can unmarshalled from JSON.
 type Config[T any] interface {
-	// ApplyDefaults applies default values to the configuration.
+	// DefaultsAndValidate applies default values to the configuration and validates the configuration.
 	//
 	// For example, if a zero value is left for a *jsontype.JSONType[time.Duration], the default value can be set here.
-	ApplyDefaults() T
+	DefaultsAndValidate() (T, error)
 }
 
 // Read is a convenience function to read JSON configuration. It will first check the environment variable in the
@@ -56,7 +56,10 @@ func Read[T Config[T]]() (T, error) {
 		return config, fmt.Errorf("failed to unmarshal configuration from %s: %w", source, err)
 	}
 
-	config = config.ApplyDefaults()
+	config, err = config.DefaultsAndValidate()
+	if err != nil {
+		return config, fmt.Errorf("failed to apply defaults and validate configuration: %w", err)
+	}
 
 	return config, nil
 }

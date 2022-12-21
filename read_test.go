@@ -9,15 +9,40 @@ import (
 	"github.com/MicahParks/jsontype"
 )
 
+var errBadConfig = errors.New("bad config")
+
 type myConfig struct {
 	MyString string `json:"myString"`
 }
 
-func (c myConfig) ApplyDefaults() myConfig {
+func (c myConfig) DefaultsAndValidate() (myConfig, error) {
 	if c.MyString == "" {
 		c.MyString = "default"
 	}
-	return c
+	return c, nil
+}
+
+type errorConfig struct {
+	MyString string `json:"myString"`
+}
+
+func (c errorConfig) DefaultsAndValidate() (errorConfig, error) {
+	return errorConfig{}, errBadConfig
+}
+
+func TestReadError(t *testing.T) {
+	err := os.Setenv(jsontype.EnvVarConfigJSON, "{}")
+	if err != nil {
+		t.Fatalf("Failed to set environment variable: %v", err)
+	}
+	_, err = jsontype.Read[errorConfig]()
+	if !errors.Is(err, errBadConfig) {
+		t.Fatalf("Invalid error: %v", err)
+	}
+	err = os.Unsetenv(jsontype.EnvVarConfigJSON)
+	if err != nil {
+		t.Fatalf("Failed to unset environment variable: %v", err)
+	}
 }
 
 func TestReadEnv(t *testing.T) {
