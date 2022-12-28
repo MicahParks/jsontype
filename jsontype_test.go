@@ -349,26 +349,6 @@ func TestUUID(t *testing.T) {
 	}
 }
 
-func TestOptions(t *testing.T) {
-	emptyOpts := jsontype.Options{}
-	j := jsontype.New(time.Time{})
-	if j.Options() != emptyOpts {
-		t.Fatal("Should have returned empty options.")
-	}
-
-	opts := jsontype.Options{
-		MailAddressAddressOnlyMarshal: true,
-		MailAddressLowerMarshal:       true,
-		MailAddressUpperMarshal:       true,
-		TimeFormatMarshal:             time.RFC822Z,
-		TimeFormatUnmarshal:           time.RFC850,
-	}
-	j.SetOptions(opts)
-	if j.Options() != opts {
-		t.Fatalf("invalid options returned")
-	}
-}
-
 func encloseDoubleQuotes(s string) string {
 	return `"` + s + `"`
 }

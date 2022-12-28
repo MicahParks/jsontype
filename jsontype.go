@@ -7,7 +7,6 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -19,6 +18,9 @@ const (
 
 	// errUnmarshalPackage is prepended to all unmarshal errors to make troubleshooting easier.
 	errUnmarshalPackage = "github.com/MicahParks/jsontype JSON unmarshal error"
+
+	// errUnreachableFmt is an error message for when code should be unreachable due to an unsupported type.
+	errUnreachableFmt = "%s: (should be unreachable code in github.com/MicahParks/jsontype) unsupported type: %T"
 )
 
 // Options is a set of options for a JSONType. It modifies the behavior of JSON marshal/unmarshal.
@@ -37,7 +39,6 @@ type J interface {
 
 // JSONType holds a generic J value. It can be used to marshal and unmarshal its value to and from JSON.
 type JSONType[T J] struct {
-	mux     sync.RWMutex
 	options Options
 	v       T
 }
@@ -63,8 +64,6 @@ func (j *JSONType[T]) Get() T {
 		var t T
 		return t
 	}
-	j.mux.RLock()
-	defer j.mux.RUnlock()
 	return j.v
 }
 
@@ -97,33 +96,15 @@ func (j *JSONType[T]) MarshalJSON() ([]byte, error) {
 		s = v.String()
 	case uuid.UUID:
 		s = v.String()
+	default:
+		return nil, fmt.Errorf("%s: (should be unreachable code in github.com/MicahParks/jsontype) unsupported type: %T", errUnmarshalPackage, j.v)
 	}
 	return json.Marshal(s)
 }
 
-// Options returns the options for the held value.
-func (j *JSONType[T]) Options() Options {
-	j.mux.RLock()
-	defer j.mux.RUnlock()
-	return j.options
-}
-
-// Set sets the held value.
-func (j *JSONType[T]) Set(v T) {
-	j.mux.Lock()
-	j.v = v
-	j.mux.Unlock()
-}
-
-// SetOptions sets the options for the held value.
-func (j *JSONType[T]) SetOptions(options Options) {
-	j.mux.Lock()
-	j.options = options
-	j.mux.Unlock()
-}
-
 // UnmarshalJSON helps implement the json.Unmarshaler interface.
 func (j *JSONType[T]) UnmarshalJSON(bytes []byte) error {
+	var v any
 	switch any(j.v).(type) {
 	case *mail.Address:
 		var s string
@@ -135,7 +116,7 @@ func (j *JSONType[T]) UnmarshalJSON(bytes []byte) error {
 		if err != nil {
 			return fmt.Errorf("%s: failed to parse email address: %w", errUnmarshalPackage, err)
 		}
-		j.Set(any(addr).(T))
+		v = any(addr)
 	case *regexp.Regexp:
 		var s string
 		err := json.Unmarshal(bytes, &s)
@@ -146,7 +127,7 @@ func (j *JSONType[T]) UnmarshalJSON(bytes []byte) error {
 		if err != nil {
 			return fmt.Errorf("%s: failed to compile regexp: %w", errUnmarshalPackage, err)
 		}
-		j.Set(any(re).(T))
+		v = any(re)
 	case time.Duration:
 		var s string
 		err := json.Unmarshal(bytes, &s)
@@ -157,7 +138,7 @@ func (j *JSONType[T]) UnmarshalJSON(bytes []byte) error {
 		if err != nil {
 			return fmt.Errorf("%s: failed to parse duration: %w", errUnmarshalPackage, err)
 		}
-		j.Set(any(d).(T))
+		v = any(d)
 	case time.Time:
 		var s string
 		err := json.Unmarshal(bytes, &s)
@@ -172,7 +153,7 @@ func (j *JSONType[T]) UnmarshalJSON(bytes []byte) error {
 		if err != nil {
 			return fmt.Errorf("%s: failed to parse time: %w", errUnmarshalPackage, err)
 		}
-		j.Set(any(t).(T))
+		v = any(t)
 	case *url.URL:
 		var s string
 		err := json.Unmarshal(bytes, &s)
@@ -183,7 +164,7 @@ func (j *JSONType[T]) UnmarshalJSON(bytes []byte) error {
 		if err != nil {
 			return fmt.Errorf("%s: failed to parse url: %w", errUnmarshalPackage, err)
 		}
-		j.Set(any(u).(T))
+		v = any(u)
 	case uuid.UUID:
 		var s string
 		err := json.Unmarshal(bytes, &s)
@@ -194,7 +175,10 @@ func (j *JSONType[T]) UnmarshalJSON(bytes []byte) error {
 		if err != nil {
 			return fmt.Errorf("%s: failed to parse uuid: %w", errUnmarshalPackage, err)
 		}
-		j.Set(any(u).(T))
+		v = any(u)
+	default:
+		return fmt.Errorf(errUnreachableFmt, errUnmarshalPackage, j.v)
 	}
+	j.v = v.(T)
 	return nil
 }

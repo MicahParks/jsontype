@@ -59,7 +59,7 @@ func main() {
 		MailAddressAddressOnlyMarshal: true,
 		MailAddressLowerMarshal:       true,
 	}
-	config.Notify.SetOptions(emailOpts)
+	config.Notify = jsontype.NewWithOptions(config.Notify.Get(), emailOpts)
 
 	// Marshal the configuration back to JSON.
 	remarshaled, err := json.MarshalIndent(config, "", "  ")

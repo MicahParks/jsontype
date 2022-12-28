@@ -72,7 +72,7 @@ emailOpts := jsontype.Options{
 	MailAddressAddressOnlyMarshal: true,
 	MailAddressLowerMarshal:       true,
 }
-config.Notify.SetOptions(emailOpts)
+config.Notify = jsontype.NewWithOptions(config.Notify.Get(), emailOpts)
 ```
 
 ## Marshal the data structure into JSON
@@ -149,7 +149,7 @@ func main() {
 		MailAddressAddressOnlyMarshal: true,
 		MailAddressLowerMarshal:       true,
 	}
-	config.Notify.SetOptions(emailOpts)
+	config.Notify = jsontype.NewWithOptions(config.Notify.Get(), emailOpts)
 
 	// Marshal the configuration back to JSON.
 	remarshaled, err := json.MarshalIndent(config, "", "  ")
@@ -176,10 +176,9 @@ Get interval: 1h30m0s
 ```
 
 # Testing
-Currently, the repository has greater than `90%` test coverage.
 ```
 $ go test -cover -race
 PASS
-coverage: 92.9% of statements
+coverage: 90.0% of statements
 ok      github.com/MicahParks/jsontype  0.021s
 ```
