@@ -2,6 +2,7 @@ package jsontype
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 )
@@ -15,9 +16,14 @@ const (
 	EnvVarConfigPath = "CONFIG_PATH"
 )
 
+// ErrDefaultsAndValidate is the error returned by the DefaultsAndValidate function when it fails to apply defaults and
+// validate the configuration.
+var ErrDefaultsAndValidate = errors.New("jsontype: failed to apply defaults and validate configuration")
+
 // Config is any data structure that can unmarshalled from JSON.
 type Config[T any] interface {
-	// DefaultsAndValidate applies default values to the configuration and validates the configuration.
+	// DefaultsAndValidate applies default values to the configuration and validates the configuration. If this
+	// function has an error, it returns an error that can be checked with errors.Is to match ErrDefaultsAndValidate.
 	//
 	// For example, if a zero value is left for a *jsontype.JSONType[time.Duration], the default value can be set here.
 	DefaultsAndValidate() (T, error)

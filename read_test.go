@@ -9,8 +9,6 @@ import (
 	"github.com/MicahParks/jsontype"
 )
 
-var errBadConfig = errors.New("bad config")
-
 type myConfig struct {
 	MyString string `json:"myString"`
 }
@@ -27,7 +25,7 @@ type errorConfig struct {
 }
 
 func (c errorConfig) DefaultsAndValidate() (errorConfig, error) {
-	return errorConfig{}, errBadConfig
+	return errorConfig{}, jsontype.ErrDefaultsAndValidate
 }
 
 func TestReadError(t *testing.T) {
@@ -36,7 +34,7 @@ func TestReadError(t *testing.T) {
 		t.Fatalf("Failed to set environment variable: %v", err)
 	}
 	_, err = jsontype.Read[errorConfig]()
-	if !errors.Is(err, errBadConfig) {
+	if !errors.Is(err, jsontype.ErrDefaultsAndValidate) {
 		t.Fatalf("Invalid error: %v", err)
 	}
 	err = os.Unsetenv(jsontype.EnvVarConfigJSON)
