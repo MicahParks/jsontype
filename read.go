@@ -22,8 +22,8 @@ var ErrDefaultsAndValidate = errors.New("jsontype: failed to apply defaults and 
 
 // Defaulter is any data structure that can unmarshalled from JSON that has defaults and can be validated.
 type Defaulter[T any] interface {
-	// DefaultsAndValidate applies default values to the configuration and validates the configuration. If this
-	// function has an error, it returns an error that can be checked with errors.Is to match ErrDefaultsAndValidate.
+	// DefaultsAndValidate applies default values and validates the data structure. If this function has an error, it
+	// returns an error that can be checked with errors.Is to match ErrDefaultsAndValidate.
 	//
 	// For example, if a zero value is left for a *jsontype.JSONType[time.Duration], the default value can be set here.
 	DefaultsAndValidate() (T, error)
