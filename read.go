@@ -20,8 +20,8 @@ const (
 // validate the configuration.
 var ErrDefaultsAndValidate = errors.New("jsontype: failed to apply defaults and validate configuration")
 
-// Config is any data structure that can unmarshalled from JSON.
-type Config[T any] interface {
+// Defaulter is any data structure that can unmarshalled from JSON that has defaults and can be validated.
+type Defaulter[T any] interface {
 	// DefaultsAndValidate applies default values to the configuration and validates the configuration. If this
 	// function has an error, it returns an error that can be checked with errors.Is to match ErrDefaultsAndValidate.
 	//
@@ -33,7 +33,7 @@ type Config[T any] interface {
 // EnvVarConfigJSON for raw JSON, then it will check the environment variable in the EnvVarConfigPath for the path to a
 // JSON file. If neither are set, it will attempt to read "config.json" in the current working directory. If that file
 // does not exist, it will return an os.ErrNotExist error.
-func Read[T Config[T]]() (T, error) {
+func Read[T Defaulter[T]]() (T, error) {
 	var (
 		config T
 		data   []byte
